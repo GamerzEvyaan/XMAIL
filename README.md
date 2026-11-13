@@ -1,0 +1,2 @@
+# XMAIL
+A mailing website
