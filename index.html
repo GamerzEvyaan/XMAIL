@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>XMail</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #080d18;
+  color: #edf3ff;
+  font-family: Arial, sans-serif;
+}
+
+header {
+  background: #111b30;
+  border-bottom: 1px solid #293b5b;
+  padding: 17px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-size: 27px;
+  font-weight: bold;
+  color: #63aaff;
+}
+
+main {
+  width: 94%;
+  max-width: 950px;
+  margin: 30px auto;
+}
+
+.panel {
+  background: #111b30;
+  border: 1px solid #293b5b;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 18px;
+}
+
+h2 {
+  color: #79b9ff;
+  margin-top: 0;
+}
+
+input, button {
+  width: 100%;
+  padding: 12px;
+  margin: 7px 0;
+  border: 1px solid #344966;
+  border-radius: 7px;
+  background: #091323;
+  color: white;
+  font-size: 15px;
+}
+
+button {
+  background: #176bd2;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  background: #3288ee;
+}
+
+button.secondary {
+  background: #293c59;
+}
+
+button.danger {
+  background: #b52f40;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.muted {
+  color: #a2b1ca;
+  font-size: 13px;
+}
+
+.account {
+  color: #79c8ff;
+  overflow-wrap: anywhere;
+}
+
+.status {
+  color: #8fc7ff;
+  margin-top: 10px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.user-card {
+  border: 1px solid #344966;
+  border-radius: 8px;
+  padding: 14px;
+  margin: 12px 0;
+  overflow-wrap: anywhere;
+}
+
+.user-card button {
+  width: auto;
+  margin: 5px;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid #344966;
+  margin: 22px 0;
+}
+
+.warning {
+  color: #ffca6a;
+  padding: 12px;
+  border: 1px solid #795b2b;
+  border-radius: 7px;
+  margin-bottom: 15px;
+}
+
+@media(max-width: 550px) {
+  header {
+    padding: 13px;
+  }
+
+  .logo {
+    font-size: 23px;
+  }
+
+  .panel {
+    padding: 14px;
+  }
+
+  .user-card button {
+    width: 100%;
+    margin: 4px 0;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">XMail</div>
+  <button id="logoutButton"
+          class="secondary hidden"
+          style="width:auto"
+          onclick="logout()">Logout</button>
+</header>
+
+<main>
+
+<!-- LOGIN AND REGISTER -->
+
+<section id="authSection">
+  <div class="panel">
+    <h2>Welcome to XMail</h2>
+    <p class="muted">Your XMail account starts here.</p>
+
+    <div id="loginForm">
+      <h3>Login</h3>
+
+      <input id="loginUsername"
+             placeholder="Username or XMail ID"
+             autocomplete="username">
+
+      <input id="loginPassword"
+             type="password"
+             placeholder="Password"
+             autocomplete="current-password">
+
+      <button onclick="login()">Login</button>
+
+      <button class="secondary" onclick="showRegister()">
+        Create an account
+      </button>
+    </div>
+
+    <div id="registerForm" class="hidden">
+      <h3>Create an account</h3>
+
+      <input id="registerUsername"
+             placeholder="Choose username"
+             maxlength="20"
+             autocomplete="username">
+
+      <input id="registerPassword"
+             type="password"
+             placeholder="Password (10–128 characters)"
+             autocomplete="new-password">
+
+      <button onclick="register()">Register</button>
+
+      <button class="secondary" onclick="showLogin()">
+        Back to login
+      </button>
+    </div>
+
+    <div id="authStatus" class="status"></div>
+  </div>
+</section>
+
+<!-- ACCOUNT -->
+
+<section id="accountSection" class="hidden">
+
+  <div class="panel">
+    <h2>My Account</h2>
+
+    <p>Username</p>
+    <div id="accountUsername" class="account"></div>
+
+    <p>XMail ID</p>
+    <div id="accountId" class="account"></div>
+
+    <p>Role</p>
+    <div id="accountRole"></div>
+  </div>
+
+  <div class="panel" id="passwordPanel">
+    <h2>Change Password</h2>
+
+    <div id="passwordWarning" class="warning hidden">
+      You must change your starter password before using operator tools.
+    </div>
+
+    <input id="oldPassword"
+           type="password"
+           placeholder="Current password"
+           autocomplete="current-password">
+
+    <input id="newPassword"
+           type="password"
+           placeholder="New password (10–128 characters)"
+           autocomplete="new-password">
+
+    <button onclick="changePassword()">Update Password</button>
+
+    <div id="passwordStatus" class="status"></div>
+  </div>
+
+</section>
+
+<!-- OPERATOR DASHBOARD -->
+
+<section id="adminSection" class="hidden">
+
+  <div class="panel">
+    <h2>Operator Dashboard</h2>
+    <p class="muted">XMail account and moderation management.</p>
+
+    <h3>Whitelist mode</h3>
+    <p class="muted">
+      When enabled, only whitelisted users can register or log in.
+    </p>
+
+    <button id="whitelistButton" onclick="toggleWhitelist()">
+      Load whitelist settings
+    </button>
+
+    <hr>
+
+    <h3>Whitelist management</h3>
+
+    <input id="whitelistUsername"
+           placeholder="Username">
+
+    <button onclick="whitelistChange(false)">Add username</button>
+    <button class="danger" onclick="whitelistChange(true)">
+      Remove username
+    </button>
+    <button class="secondary" onclick="loadWhitelist()">
+      View whitelist
+    </button>
+
+    <div id="whitelistOutput"></div>
+
+    <hr>
+
+    <h3>Users</h3>
+
+    <button onclick="loadUsers()">Refresh users</button>
+    <div id="usersOutput"></div>
+
+    <hr>
+
+    <h3>Audit logs</h3>
+
+    <button onclick="loadLogs()">Load logs</button>
+    <div id="logsOutput"></div>
+
+    <hr>
+
+    <h3>Database backup</h3>
+
+    <button onclick="downloadBackup()">Download backup</button>
+
+    <p class="muted">
+      Backup files contain private account information. Keep them secure.
+    </p>
+
+    <hr>
+
+    <h3>Restore database</h3>
+
+    <input id="restoreFile" type="file" accept=".json">
+
+    <button class="danger" onclick="restoreBackup()">
+      Restore backup
+    </button>
+
+    <p class="muted">
+      Restore replaces the current database contents.
+    </p>
+  </div>
+
+</section>
+
+<div id="globalStatus" class="status"></div>
+
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+
+async function api(path, method = "GET", data = null) {
+  const options = {
+    method,
+    credentials: "same-origin",
+    headers: {}
+  };
+
+  if (data !== null) {
+    options.headers["Content-Type"] = "application/json";
+    options.body = JSON.stringify(data);
+  }
+
+  const result = await fetch("/api" + path, options);
+
+  let parsed;
+
+  try {
+    parsed = await result.json();
+  } catch {
+    throw new Error("Invalid server response.");
+  }
+
+  if (!result.ok) {
+    throw new Error(parsed.error || "Request failed.");
+  }
+
+  return parsed;
+}
+
+function status(message, element = "globalStatus") {
+  $(element).textContent = message;
+}
+
+function showLogin() {
+  $("loginForm").classList.remove("hidden");
+  $("registerForm").classList.add("hidden");
+  status("", "authStatus");
+}
+
+function showRegister() {
+  $("loginForm").classList.add("hidden");
+  $("registerForm").classList.remove("hidden");
+  status("", "authStatus");
+}
+
+async function login() {
+  status("Signing in...", "authStatus");
+
+  try {
+    const result = await api("/login", "POST", {
+      username: $("loginUsername").value,
+      password: $("loginPassword").value
+    });
+
+    await loadAccount();
+
+    if (result.passwordChangeRequired) {
+      status("Change your starter password first.", "passwordStatus");
+    }
+  } catch (error) {
+    status(error.message, "authStatus");
+  }
+}
+
+async function register() {
+  status("Creating account...", "authStatus");
+
+  try {
+    const result = await api("/register", "POST", {
+      username: $("registerUsername").value,
+      password: $("registerPassword").value
+    });
+
+    status("Account created: " + result.accountId, "authStatus");
+    await loadAccount();
+  } catch (error) {
+    status(error.message, "authStatus");
+  }
+}
+
+async function logout() {
+  try {
+    await api("/logout", "POST");
+  } catch (error) {
+    status(error.message);
+  }
+
+  $("accountSection").classList.add("hidden");
+  $("adminSection").classList.add("hidden");
+  $("authSection").classList.remove("hidden");
+  $("logoutButton").classList.add("hidden");
+
+  $("loginPassword").value = "";
+  showLogin();
+}
+
+async function loadAccount() {
+  const result = await api("/me");
+
+  if (!result.user) {
+    $("accountSection").classList.add("hidden");
+    $("adminSection").classList.add("hidden");
+    $("authSection").classList.remove("hidden");
+    $("logoutButton").classList.add("hidden");
+    return;
+  }
+
+  const user = result.user;
+
+  $("authSection").classList.add("hidden");
+  $("accountSection").classList.remove("hidden");
+  $("logoutButton").classList.remove("hidden");
+
+  $("accountUsername").textContent = user.username;
+  $("accountId").textContent = user.accountId;
+  $("accountRole").textContent = user.role;
+
+  $("passwordWarning").classList.toggle(
+    "hidden",
+    !user.passwordChangeRequired
+  );
+
+  $("adminSection").classList.add("hidden");
+
+  if (user.role === "operator" && !user.passwordChangeRequired) {
+    $("adminSection").classList.remove("hidden");
+    await loadSettings();
+    await loadUsers();
+  }
+}
+
+async function changePassword() {
+  status("Updating password...", "passwordStatus");
+
+  try {
+    await api("/change-password", "POST", {
+      oldPassword: $("oldPassword").value,
+      newPassword: $("newPassword").value
+    });
+
+    $("oldPassword").value = "";
+    $("newPassword").value = "";
+
+    status("Password successfully changed.", "passwordStatus");
+    await loadAccount();
+  } catch (error) {
+    status(error.message, "passwordStatus");
+  }
+}
+
+async function loadSettings() {
+  try {
+    const result = await api("/admin/settings");
+
+    $("whitelistButton").textContent =
+      "Whitelist mode: " +
+      (result.whitelistMode ? "ON" : "OFF") +
+      " — click to toggle";
+  } catch (error) {
+    status(error.message);
+  }
+}
+
+async function toggleWhitelist() {
+  try {
+    const current = await api("/admin/settings");
+
+    await api("/admin/settings", "POST", {
+      whitelistMode: !current.whitelistMode
+    });
+
+    await loadSettings();
+    status("Whitelist setting updated.");
+  } catch (error) {
+    status(error.message);
+  }
+}
+
+async function whitelistChange(remove) {
+  const username = $("whitelistUsername").value.trim();
+
+  if (!username) {
+    status("Enter a username.");
+    return;
+  }
+
+  try {
+    await api("/admin/whitelist", "POST", {
+      username,
+      remove
+    });
+
+    status(remove ? "Username removed." : "Username added.");
+    await loadWhitelist();
+  } catch (error) {
+    status(error.message);
+  }
+}
+
+async function loadWhitelist() {
+  try {
+    const result = await api("/admin/whitelist");
+    const output = $("whitelistOutput");
+    output.replaceChildren();
+
+    for (const entry of result.entries) {
+      const p = document.createElement("p");
+      p.textContent = entry.username;
+      output.appendChild(p);
+    }
+
+    if (!result.entries.length) {
+      output.textContent = "No whitelist entries.";
+    }
+  } catch (error) {
+    status(error.message);
+  }
+}
+
+function makeButton(label, callback, danger = false) {
+  const button = document.createElement("button");
+  button.textContent = label;
+
+  if (danger) button.className = "danger";
+
+  button.addEventListener("click", callback);
+  return button;
+}
+
+async function userAction(user, action) {
+  let minutes = 60;
+
+  if (action === "temp_ban" || action === "temp_ip_ban") {
+    const answer = prompt("Duration in minutes:", "60");
+
+    if (answer === null) return;
+
+    minutes = Number(answer);
+
+    if (!Number.isInteger(minutes) ||
+        minutes < 1 || minutes > 525600) {
+      status("Enter a duration from 1 to 525600 minutes.");
+      return;
+    }
+  }
+
+  const reason = prompt("Reason:", "No reason provided");
+  if (reason === null) return;
+
+  if (!confirm("Apply " + action + " to " + user.username + "?")) {
+    return;
+  }
+
+  try {
+    await api("/admin/action", "POST", {
+      userId: user.id,
+      action,
+      minutes,
+      reason
+    });
+
+    status("Action completed: " + action);
+    await loadUsers();
+  } catch (error) {
+    status(error.message);
+  }
+}
+
+async function loadUsers() {
+  try {
+    const result = await api("/admin/users");
+    const output = $("usersOutput");
+    output.replaceChildren();
+
+    for (const user of result.users) {
+      const card = document.createElement("div");
+      card.className = "user-card";
+
+      const name = document.createElement("strong");
+      name.textContent = user.username + " (" + user.role + ")";
+
+      const account = document.createElement("p");
+      account.textContent = user.account_id;
+
+      card.append(name, account);
+
+      if (user.role !== "operator") {
+        const actions = [
+          ["Kick", "kick"],
+          ["Permanent ban", "ban"],
+          ["Temporary ban", "temp_ban"],
+          ["Unban", "unban"],
+          ["IP ban", "ip_ban"],
+          ["Temporary IP ban", "temp_ip_ban"],
+          ["Unban IP", "unban_ip"]
+        ];
+
+        for (const [label, action] of actions) {
+          card.appendChild(makeButton(
+            label,
+            () => userAction(user, action),
+            ["ban", "temp_ban", "ip_ban", "temp_ip_ban"].includes(action)
+          ));
+        }
+      }
+
+      output.appendChild(card);
+    }
+
+    if (!result.users.length) {
+      output.textContent = "No registered users.";
+    }
+  } catch (error) {
+    status(error.message);
+  }
+}
+
+async function loadLogs() {
+  try {
+    const result = await api("/admin/logs");
+    const output = $("logsOutput");
+    output.replaceChildren();
+
+    for (const log of result.logs) {
+      const p = document.createElement("p");
+
+      p.textContent =
+        log.created_at + " | " +
+        log.actor + " | " +
+        log.action + " | " +
+        log.target + " | " +
+        log.details;
+
+      output.appendChild(p);
+    }
+
+    if (!result.logs.length) {
+      output.textContent = "No audit logs.";
+    }
+  } catch (error) {
+    status(error.message);
+  }
+}
+
+async function downloadBackup() {
+  try {
+    const backup = await api("/admin/backup");
+
+    const blob = new Blob(
+      [JSON.stringify(backup, null, 2)],
+      { type: "application/json" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "xmail-backup.json";
+    link.click();
+
+    URL.revokeObjectURL(url);
+    status("Backup downloaded.");
+  } catch (error) {
+    status(error.message);
+  }
+}
+
+async function restoreBackup() {
+  const file = $("restoreFile").files[0];
+
+  if (!file) {
+    status("Select a backup file first.");
+    return;
+  }
+
+  if (!confirm("This replaces the current database. Continue?")) {
+    return;
+  }
+
+  try {
+    const backup = JSON.parse(await file.text());
+
+    await api("/admin/restore", "POST", backup);
+
+    status("Database restored.");
+    await loadAccount();
+  } catch (error) {
+    status(error.message);
+  }
+}
+
+loadAccount().catch(error => {
+  status(error.message);
+});
+</script>
+
+</body>
+</html>
